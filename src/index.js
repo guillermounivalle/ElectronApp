@@ -1,6 +1,6 @@
 "Requerimos el paquete de Electron"
 "Traemos app, BrowserWindow, Menu"
-const {app, BrowserWindow, Menu} = require('electron');
+const {app, BrowserWindow, Menu, ipcMain} = require('electron');
 
 "Este paquete nos va a permitir usar loadURL() para poder cargar el index.html"
 const url = require('url');
@@ -64,6 +64,14 @@ function createNewProductWindow (){
 }
 
 /**
+ * Escuchamos el protocolo de ipcRenderer para recibir lo que nos envìa new-product.html
+ */
+ipcMain.on('product:new', (event, newProduct) => {
+    mainWindow.webContents.send('product:new', newProduct);//Se lo enviamos al index.html
+    newProductWindow.close(); //Cerramos la ventana de new-product.html
+});
+
+/**
  * En este arreglo creamos nuestro propio menu. Este template lo usaremos en  Menu.buildFromTemplate()
 })
  */
@@ -79,7 +87,10 @@ const templateMenu = [
                 }
             },
             {
-                label: 'Remove all Products'
+                label: 'Remove all Products',
+                click(){
+                    mainWindow.webContents.send('products:remove-all');
+                }
             },
             {
                 label: 'Exit',
